@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+  <audio controls id="audio-player">
+    <source src="" id="source">
+    NO HTML AUDIO SUPPORT. PLEASE UPGRADE YOUR BROWSER
+  </audio>
+  <h2>Songs Avalilable:</h2>
+  <form id="deleteForm" action="/api/delete" method="POST">
+    <input value="new" type="text" id="delete-filename" name="deleteId" style="display: none" />
+    <table class="song-list">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>title</th>
+          <th>artist</th>
+          <th>album</th>
+          <th>genre</th>
+          <th>remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (var i = 0; i < song_list.length; i++) {
+              if (song_list[i].name !== 'dummy') {
+          %>
+          <tr>
+            <td><%= song_list[i].meta.track_number %></td>
+            <td class="song" data-src="<%= song_list[i].name %>"><%= song_list[i].meta.title %></td>
+            <td><%= song_list[i].meta.artist %></td>
+            <td><%= song_list[i].meta.album %></td>
+            <td><%= song_list[i].meta.genre %></td>
+            <td><input type="submit" class="remove-button" data-src="<%= song_list[i].name %>" value="x"/></td>
+          </tr>
+        <%    }
+            }
+        %>
+      </tbody>
+    </table>
+  </form>
+  <form id="uploadForm" enctype="multipart/form-data" action="/api/audio" method="post">
+    <input type="file" name="userAudio" />
+    <input type="submit" value="Upload Audio" name="submit">
+  </form>
+  <script src="/javascripts/script.js"></script>
+</body>
+</html>
