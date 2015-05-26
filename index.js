@@ -1,12 +1,21 @@
 var fs = require('fs'),
     express = require('express'),
     multer = require('multer'),
+    path  = require('path'),
+    lessMiddleware = require('less-middleware'),
     bodyParser = require('body-parser'),
-    songlist = require('./songlist.js');
+    songlist = require('./songlist.js'),
 
-var app = express();
+    app = express(),
 
-var done = false;
+    done = false;
+
+app.use(lessMiddleware('/less', {
+  dest: '/css',
+  pathRoot: path.join('./public')
+}));
+app.use(express.static(path.join('./public')));
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

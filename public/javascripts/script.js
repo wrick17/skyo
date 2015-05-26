@@ -23,4 +23,16 @@
 
   document.querySelector('.song-list').addEventListener('click', clickHandler, false);
 
+  document.querySelector(".upload").onchange = function () {
+    if (this.value !== ''){
+      document.querySelector(".upload-button").setAttribute("disabled", "disabled");
+      document.querySelector(".upload-button").innerHTML = this.value;
+    }
+    else {
+      document.querySelector(".upload-button").removeAttribute("disabled");
+      document.querySelector(".upload-button").innerHTML = 'Upload';
+    }
+
+  };
+
 })();

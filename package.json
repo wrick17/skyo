@@ -8,6 +8,7 @@
     "ejs": "^2.3.1",
     "express": "^4.12.3",
     "id3_reader": "^1.0.1",
+    "less-middleware": "^2.0.1",
     "mp3-duration": "^1.0.5",
     "mp3-length": "^1.0.0",
     "multer": "^0.1.8"
