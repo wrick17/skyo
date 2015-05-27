@@ -70,13 +70,15 @@ app.post('/api/size', function(req, res){
 });
 
 app.head('/api/progress', function(req, res){
-  res.sendStatus(percent);
+  console.log(percent);
+  res.send(percent);
 });
 
 app.post('/api/audio',function(req,res){
   if(done == true){
     console.log(req.body);
     res.redirect('/');
+    // res.send();
   }
 });
 

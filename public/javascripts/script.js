@@ -45,14 +45,20 @@
       .send({size: document.querySelector('.size').value})
       .end(function(err, res){});
 
-    setInterval(function(){
+    var progress = setInterval(function(){
       superagent
         .head('/api/progress')
         .end(function(err, res){
-          if (res !== undefined)
-            document.querySelector('progress').value = res.status;
+          console.log(res);
+          if (res !== undefined){
+            document.querySelector('progress').value = res.status.toString();
+          }
+          else {
+            document.querySelector('progress').value = '100';
+            clearInterval(progress);
+          }
         });
-    }, 2000);
+    }, 3000);
 
   }, false);
 
