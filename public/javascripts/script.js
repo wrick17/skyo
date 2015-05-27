@@ -59,9 +59,9 @@
               clearInterval(progress);
             }
           });
-      }, 1);
+      }, 3000);
 
-    }, 000);
+    }, 3000);
 
 
   }, false);
