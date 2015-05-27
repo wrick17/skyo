@@ -5,8 +5,6 @@ var fs = require('fs'),
     lessMiddleware = require('less-middleware'),
     bodyParser = require('body-parser'),
     songlist = require('./songlist.js'),
-    cheerio = require('cheerio'),
-    $ = cheerio.load('<span class="upload-button">Upload</span>'),
     app = express(),
 
     size = 0,
