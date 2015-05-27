@@ -69,7 +69,10 @@ app.post('/api/size', function(req, res){
 
 app.head('/api/progress', function(req, res){
   console.log(percent);
-  res.send(percent);
+  if (percent !== 0)
+    res.sendStatus(percent);
+  else
+    res.sendStatus(0);
 });
 
 app.post('/api/audio',function(req,res){

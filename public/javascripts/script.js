@@ -50,18 +50,18 @@
         superagent
           .head('/api/progress')
           .end(function(err, res){
-            console.log(res);
+            // console.log(res);
             if (res !== undefined){
-              document.querySelector('progress').value = res.status.toString();
+              document.querySelector('progress').value = res.status;
             }
             else {
               document.querySelector('progress').value = '100';
               clearInterval(progress);
             }
           });
-      }, 3000);
+      }, 1);
 
-    }, 8000);
+    }, 000);
 
 
   }, false);

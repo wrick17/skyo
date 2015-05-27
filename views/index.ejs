@@ -30,7 +30,7 @@
                 if (num < 10) return '0'+num;
               };
               for (var i = 0; i < song_list.length; i++) {
-                if (song_list[i].name !== 'dummy') {
+                if (song_list[i].name !== 'dummy' && song_list[i] !== undefined) {
                   if (song_list[i].meta.title == 'unknown') {
                     var name = song_list[i].name;
                   }
