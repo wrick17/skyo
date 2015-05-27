@@ -32,7 +32,6 @@ main {
   height: calc(~"100vh - 195px");
   padding: 30px;
   background: #ECEFF1;
-
   table.song-list {
     width: 100%;
     border: 1px solid @deep-grey;
@@ -107,6 +106,21 @@ main {
       filter: alpha(opacity=0);
     }
   }
+}
+
+progress[value] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  display: block;
+}
+progress[value]::-webkit-progress-bar {
+  background-color: #eee;
+  border-radius: 2px;
+}
+progress[value]::-webkit-progress-value {
+  background-color: red;
 }
 
 footer {

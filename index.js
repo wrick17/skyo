@@ -5,9 +5,13 @@ var fs = require('fs'),
     lessMiddleware = require('less-middleware'),
     bodyParser = require('body-parser'),
     songlist = require('./songlist.js'),
-
+    cheerio = require('cheerio'),
+    $ = cheerio.load('<span class="upload-button">Upload</span>'),
     app = express(),
 
+    size = 0,
+    currentSize = 0,
+    percent = 0,
     done = false;
 
 app.use(lessMiddleware('/less', {
@@ -30,6 +34,11 @@ app.use(multer({
   onFileUploadComplete: function(file) {
     console.log(file.fieldname + ' uploaded to  ' + file.path)
     done = true;
+    percent = 0; size = 0; currentSize = 0;
+  },
+  onFileUploadData: function (file, data, req, res) {
+    currentSize += parseInt(data.length);
+    percent = Math.floor((currentSize/size)*100);
   }
 }));
 
@@ -55,15 +64,24 @@ app.get('/', function(req, res) {
 
 });
 
+app.post('/api/size', function(req, res){
+  size = parseInt(req.body.size);
+  res.send();
+});
+
+app.get('/api/progress', function(req, res){
+  res.sendStatus(percent);
+});
+
 app.post('/api/audio',function(req,res){
-  console.log(req.files);
   if(done == true){
+    console.log(req.body);
     res.redirect('/');
   }
 });
 
 app.post('/api/delete',function(req,res){
-  console.log(req.body.deleteId);
+  // console.log(req.body.deleteId);
   fs.unlink('./public/music/'+req.body.deleteId, function (err) {
     if (err) throw err;
     console.log('successfully deleted');

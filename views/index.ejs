@@ -31,10 +31,16 @@
               };
               for (var i = 0; i < song_list.length; i++) {
                 if (song_list[i].name !== 'dummy') {
+                  if (song_list[i].meta.title == 'unknown') {
+                    var name = song_list[i].name;
+                  }
+                  else {
+                    var name = song_list[i].meta.title;
+                  }
             %>
             <tr>
               <td class="serial"><%= addZero(i+1) %></td>
-              <td class="song" data-src="<%= song_list[i].name %>"><%= song_list[i].meta.title %></td>
+              <td class="song" data-src="<%= song_list[i].name %>"><%= name %></td>
               <td class="artist"><%= song_list[i].meta.artist %></td>
               <td class="album"><%= song_list[i].meta.album %></td>
               <td class="genre"><%= song_list[i].meta.genre %></td>
@@ -46,20 +52,25 @@
         </tbody>
       </table>
     </form>
-    <form id="uploadForm" enctype="multipart/form-data" action="/api/audio" method="post">
+
+    <form id="uploadForm" action="/api/audio" enctype="multipart/form-data" method="POST">
       <div class="fileUpload btn">
         <span class="upload-button">Upload</span>
         <input type="file" class="upload" name="upload" required/>
+        <input type="text" class="size" name="size" style="display: none" />
       </div>
       <input type="submit" value="Upload Audio" name="submit" class="btn">
     </form>
+
   </main>
+  <progress max="100" value="0"></progress>
   <footer>
     <audio controls id="audio-player">
       <source src="" id="source">
       NO HTML AUDIO SUPPORT. PLEASE UPGRADE YOUR BROWSER
     </audio>
   </footer>
+  <script src="/javascripts/superagent.js"></script>
   <script src="/javascripts/script.js"></script>
 </body>
 </html>
