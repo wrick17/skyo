@@ -43,18 +43,16 @@
     superagent
       .post('/api/size')
       .send({size: document.querySelector('.size').value})
-      .end(function(err, res){
-        console.log(res.text);
-      });
+      .end(function(err, res){});
 
     setInterval(function(){
       superagent
-        .get('/api/progress')
+        .head('/api/progress')
         .end(function(err, res){
           if (res !== undefined)
             document.querySelector('progress').value = res.status;
         });
-    }, 3000);
+    }, 2000);
 
   }, false);
 

@@ -69,7 +69,7 @@ app.post('/api/size', function(req, res){
   res.send();
 });
 
-app.get('/api/progress', function(req, res){
+app.head('/api/progress', function(req, res){
   res.sendStatus(percent);
 });
 
