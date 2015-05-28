@@ -27,7 +27,7 @@
   document.querySelector('.upload').onchange = function () {
     if (this.value !== ''){
       document.querySelector('.upload-button').setAttribute('disabled', 'disabled');
-      document.querySelector('.upload-button').innerHTML = this.value;
+      document.querySelector('.upload-button').innerHTML = this.name;
       document.querySelector('.size').value = this.files[0].size;
     }
     else {
