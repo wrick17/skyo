@@ -45,22 +45,19 @@
       .send({size: document.querySelector('.size').value})
       .end(function(err, res){});
 
-    setTimeout(function(){
-      var progress = setInterval(function(){
-        superagent
-          .get('/api/progress')
-          .end(function(err, res){
-            if (res !== undefined) {
-              var percent = (JSON.parse(res.text)).percent;
-              document.querySelector('progress').value = percent;
-              if (percent == '100'){
-                clearInterval(progress);
-              }
+    var progress = setInterval(function(){
+      superagent
+        .get('/api/progress')
+        .end(function(err, res){
+          if (res !== undefined) {
+            var percent = (JSON.parse(res.text)).percent;
+            document.querySelector('progress').value = percent;
+            if (percent == '100'){
+              clearInterval(progress);
             }
-          });
-      }, 2000);
-
-    }, 000);
+          }
+        });
+    }, 2000);
 
 
   }, false);
