@@ -48,20 +48,19 @@
     setTimeout(function(){
       var progress = setInterval(function(){
         superagent
-          .head('/api/progress')
+          .get('/api/progress')
           .end(function(err, res){
-            // console.log(res);
-            if (res !== undefined){
-              document.querySelector('progress').value = res.status;
-            }
-            else {
-              document.querySelector('progress').value = '100';
-              clearInterval(progress);
+            if (res !== undefined) {
+              var percent = (JSON.parse(res.text)).percent;
+              document.querySelector('progress').value = percent;
+              if (percent == '100'){
+                clearInterval(progress);
+              }
             }
           });
-      }, 2000);
+      }, 3000);
 
-    }, 5000);
+    }, 3000);
 
 
   }, false);

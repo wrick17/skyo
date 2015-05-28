@@ -67,19 +67,19 @@ app.post('/api/size', function(req, res){
   res.send();
 });
 
-app.head('/api/progress', function(req, res){
+app.get('/api/progress', function(req, res){
   console.log(percent);
   if (percent !== 0)
-    res.sendStatus(percent);
+    res.jsonp({'percent': percent});
   else
-    res.sendStatus(0);
+    res.jsonp({'percent': 0});
 });
 
 app.post('/api/audio',function(req,res){
   if(done == true){
     console.log(req.body);
     res.redirect('/');
-    // res.send();
+    // res.send('0');
   }
 });
 
