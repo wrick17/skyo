@@ -40,25 +40,21 @@
   document.querySelector('#uploadForm').addEventListener('submit', function (event) {
     // console.log(document.querySelector('.size').value);
 
+    event.preventDefault();
+
     superagent
-      .post('/api/size')
-      .send({size: document.querySelector('.size').value})
-      .end(function(err, res){});
-
-    var progress = setInterval(function(){
-      superagent
-        .get('/api/progress')
-        .end(function(err, res){
-          if (res !== undefined) {
-            var percent = (JSON.parse(res.text)).percent;
-            document.querySelector('progress').value = percent;
-            if (percent == '100'){
-              clearInterval(progress);
-            }
-          }
-        });
-    }, 2000);
-
+      .post('/api/audio')
+      .attach('file', document.querySelector('.upload').files[0], document.querySelector('.upload').files[0].name)
+      .field('size', document.querySelector('.size').value)
+      .on('progress', function(e) {
+        document.querySelector('progress').value = e.percent;
+      })
+      .end(function(err, res){
+        document.querySelector('.upload-button').innerHTML = 'Upload';
+        document.querySelector('progress').value = '0';
+        document.querySelector('.upload').value = '';
+        window.location = '/';
+      });
 
   }, false);
 

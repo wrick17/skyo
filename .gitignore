@@ -1,3 +1,5 @@
 node_modules/
 public/music/
 public/music/.DS_Store
+.DS_Store
+.idea
