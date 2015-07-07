@@ -69,9 +69,9 @@ getInitialState: function() {
   },
 
   componentWillReceiveProps: function(nextProps) {
-    this.setState({repeat: nextProps.repeat, shuffle: nextProps.shuffle, currentTime: nextProps.songPosition});
-    if(Math.ceil(nextProps.songPosition) === 0)
-      React.findDOMNode(this.refs.audio).currentTime = nextProps.songPosition;
+    this.setState({repeat: nextProps.repeat, shuffle: nextProps.shuffle});
+    if (nextProps.repeatSong)
+      React.findDOMNode(this.refs.audio).currentTime = 1;
     if (this.props.musicUrl !== nextProps.musicUrl) {
       this.setState({
         currentSong: nextProps.musicUrl,

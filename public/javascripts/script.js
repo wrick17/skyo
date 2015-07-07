@@ -86,7 +86,8 @@
 	          repeat: 'continuous',
 	          resetPlayer: false,
 	          songPosition: 0,
-	          uploadProgress: 0
+	          uploadProgress: 0,
+	          repeatSong: false
 	        };
 	      },
 
@@ -123,7 +124,11 @@
 	      },
 
 	      playSong: function playSong(songId) {
-	        this.setState({ currentSong: '/music/' + this.state.playlist[songId], currentSongId: songId, songPosition: 0 });
+	        if (songId === this.state.currentSongId) {
+	          this.setState({ currentSong: '/music/' + this.state.playlist[songId], currentSongId: songId, repeatSong: true });
+	          this.setState({ repeatSong: false });
+	        }
+	        this.setState({ currentSong: '/music/' + this.state.playlist[songId], currentSongId: songId });
 	      },
 
 	      playNextSong: function playNextSong() {
@@ -192,6 +197,7 @@
 	            musicUrl: this.state.currentSong,
 	            playNextSong: this.playNextSong,
 	            playPrevSong: this.playPrevSong,
+	            repeatSong: this.state.repeatSong,
 	            pollPosition: this.pollPosition,
 	            songPosition: this.state.songPosition,
 	            repeat: this.state.repeat,
@@ -229,6 +235,7 @@
 	        musicUrl: this.props.musicUrl,
 	        shuffle: this.props.shuffle,
 	        playNextSong: this.props.playNextSong,
+	        repeatSong: this.props.repeatSong,
 	        pollPosition: this.props.pollPosition,
 	        songPosition: this.props.songPosition,
 	        repeat: this.props.repeat,
@@ -20690,8 +20697,8 @@
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    this.setState({ repeat: nextProps.repeat, shuffle: nextProps.shuffle, currentTime: nextProps.songPosition });
-	    if (Math.ceil(nextProps.songPosition) === 0) React.findDOMNode(this.refs.audio).currentTime = nextProps.songPosition;
+	    this.setState({ repeat: nextProps.repeat, shuffle: nextProps.shuffle });
+	    if (nextProps.repeatSong) React.findDOMNode(this.refs.audio).currentTime = 1;
 	    if (this.props.musicUrl !== nextProps.musicUrl) {
 	      this.setState({
 	        currentSong: nextProps.musicUrl,

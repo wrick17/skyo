@@ -10,6 +10,7 @@ var AppFooter = React.createClass({
           musicUrl={this.props.musicUrl}
           shuffle={this.props.shuffle}
           playNextSong={this.props.playNextSong}
+          repeatSong={this.props.repeatSong}
           pollPosition={this.props.pollPosition}
           songPosition={this.props.songPosition}
           repeat={this.props.repeat}

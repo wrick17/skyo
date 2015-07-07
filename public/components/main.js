@@ -38,7 +38,8 @@
           repeat: 'continuous',
           resetPlayer: false,
           songPosition: 0,
-          uploadProgress: 0
+          uploadProgress: 0,
+          repeatSong: false
         };
       },
 
@@ -78,7 +79,11 @@
       },
 
       playSong: function(songId) {
-        this.setState({currentSong: '/music/'+this.state.playlist[songId], currentSongId: songId, songPosition: 0});
+        if (songId === this.state.currentSongId) {
+          this.setState({currentSong: '/music/'+this.state.playlist[songId], currentSongId: songId, repeatSong: true});
+          this.setState({repeatSong: false});
+        }
+        this.setState({currentSong: '/music/'+this.state.playlist[songId], currentSongId: songId});
       },
 
       playNextSong: function() {
@@ -162,6 +167,7 @@
               musicUrl={this.state.currentSong}
               playNextSong={this.playNextSong}
               playPrevSong={this.playPrevSong}
+              repeatSong={this.state.repeatSong}
               pollPosition={this.pollPosition}
               songPosition={this.state.songPosition}
               repeat={this.state.repeat}
