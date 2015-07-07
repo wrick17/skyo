@@ -34,7 +34,6 @@ app.use(multer({
     percent = 0;
     size = 0;
     currentSize = 0;
-    console.log(file.buffer);
     fs.writeFileSync('./public/music/'+file.name, file.buffer);
   }
 }));
@@ -51,12 +50,13 @@ app.get('/about', function(req, res) {
 });
 
 app.get('/', function(req, res) {
+  res.render('main');
+});
+
+app.get('/api/musicList', function(req, res) {
 
   songlist('./public/music', function(data) {
-    res.render('index', {
-      title: 'Syko Music',
-      song_list: data
-    });
+    res.send(data);
   });
 
 });
@@ -68,7 +68,6 @@ app.post('/api/audio', function(req, res) {
 });
 
 app.post('/api/delete', function(req, res) {
-  // console.log(req.body.deleteId);
   fs.unlink('./public/music/' + req.body.deleteId, function(err) {
     if (err) throw err;
     console.log('successfully deleted');
@@ -84,6 +83,3 @@ var server = app.listen(process.env.PORT || 3000, function() {
   console.log('Example app listening at http://%s:%s', host, port);
 
 });
-
-
-// SONGLIST NPM

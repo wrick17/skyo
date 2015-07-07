@@ -16,6 +16,7 @@ module.exports = function(path_name, callback) {
       if (path.extname(file) === '.mp3') {
         song_list.push({
           name: file,
+          id: i++,
           meta: data
         });
         call();
