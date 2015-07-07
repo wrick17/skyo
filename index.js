@@ -63,7 +63,7 @@ app.get('/api/musicList', function(req, res) {
 
 app.post('/api/audio', function(req, res) {
   if (done == true) {
-    res.redirect('/');
+    res.send('');
   }
 });
 
@@ -71,7 +71,7 @@ app.post('/api/delete', function(req, res) {
   fs.unlink('./public/music/' + req.body.deleteId, function(err) {
     if (err) throw err;
     console.log('successfully deleted');
-    res.redirect('/');
+    res.send('');
   });
 });
 
