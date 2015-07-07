@@ -17,7 +17,7 @@ var AppButtonRound = React.createClass({
 
   render: function() {
     return (
-      <FloatingActionButton iconClassName={this.props.iconClassName} style={{margin: '0 10px'}} mini={true} secondary={true} onClick={this.props.onClick} disabled={this.props.disabled} />
+      <FloatingActionButton iconClassName={this.props.iconClassName} style={{margin: '0 5px'}} mini={true} secondary={true} onClick={this.props.onClick} disabled={this.props.disabled} />
     );
   }
 

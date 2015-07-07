@@ -20666,7 +20666,7 @@
 
 	  render: function render() {
 	    var seek = parseInt(this.props.currentTime) / parseInt(this.props.duration);
-	    return React.createElement(Slider, { style: { height: '12px', backgroundColor: 'transparent', top: '-12px' }, name: 'audioSlider', onChange: this.props.onChange, step: 0.0001, value: seek });
+	    return React.createElement(Slider, { style: { height: '18px', backgroundColor: 'transparent', top: '-12px' }, name: 'audioSlider', onChange: this.props.onChange, step: 0.0001, value: seek });
 	  }
 
 	});
@@ -20776,7 +20776,7 @@
 	        { className: 'audio-controls' },
 	        React.createElement(
 	          'span',
-	          { className: 'song-current', style: { float: 'left', width: '50px', textAlign: 'center' } },
+	          { className: 'song-current', style: { float: 'left', width: '40px', fontSize: '12px', textAlign: 'center' } },
 	          _toMinutes(this.state.currentTime)
 	        ),
 	        React.createElement(
@@ -20812,7 +20812,7 @@
 	        ),
 	        React.createElement(
 	          'span',
-	          { className: 'song-duration', style: { float: 'right', width: '50px', textAlign: 'center' } },
+	          { className: 'song-duration', style: { float: 'right', width: '40px', fontSize: '12px', textAlign: 'center' } },
 	          _toMinutes(this.state.duration)
 	        )
 	      )
@@ -38568,7 +38568,7 @@
 	  },
 
 	  render: function render() {
-	    return React.createElement(FloatingActionButton, { iconClassName: this.props.iconClassName, style: { margin: '0 10px' }, mini: true, secondary: true, onClick: this.props.onClick, disabled: this.props.disabled });
+	    return React.createElement(FloatingActionButton, { iconClassName: this.props.iconClassName, style: { margin: '0 5px' }, mini: true, secondary: true, onClick: this.props.onClick, disabled: this.props.disabled });
 	  }
 
 	});
@@ -40057,8 +40057,9 @@
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    if (nextProps.resetPlayer) {
 	      this.setState({ currentSongId: undefined });
-	      nextProps.resetPlayerComplete();
+	      return extProps.resetPlayerComplete();
 	    }
+	    this.setState({ currentSongId: nextProps.currentSongId });
 	  },
 
 	  playSong: function playSong(e) {
@@ -40068,6 +40069,8 @@
 
 	  deleteSong: function deleteSong(e) {
 	    var fileName = e.target.parentElement.parentElement.parentElement.lastChild.dataset.name;
+	    var songId = e.target.parentElement.parentElement.parentElement.lastChild.dataset.id;
+	    if (songId == this.state.currentSongId) return;
 	    this.props.handleDelete(fileName);
 	  },
 
@@ -40082,7 +40085,7 @@
 	          'span',
 	          { style: {
 	              textOverflow: 'ellipsis',
-	              maxWidth: '85%',
+	              maxWidth: '75%',
 	              whiteSpace: 'nowrap',
 	              overflow: 'hidden',
 	              display: 'block',
@@ -40096,12 +40099,12 @@
 	            onClick: that.deleteSong,
 	            style: {
 	              padding: '0 !important',
-	              marginRight: '10px',
 	              height: '24px',
 	              width: '24px',
 	              float: 'right',
 	              verticalAlign: 'sub' } },
-	          React.createElement(FontIcon, { className: 'mdi mdi-delete', color: '#aaa', hoverColor: '#333' })
+	          that.props.currentSongId == song.id ? null : React.createElement(FontIcon, { className: 'mdi mdi-delete', color: '#999', hoverColor: '#555' }),
+	          that.props.currentSongId == song.id ? React.createElement(FontIcon, { className: 'mdi mdi-delete', color: '#ddd' }) : null
 	        ),
 	        that.props.currentSongId == song.id ? null : React.createElement(
 	          IconButton,

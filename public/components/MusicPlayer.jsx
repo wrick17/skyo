@@ -38,7 +38,7 @@ var MusicSlider = React.createClass({
   render: function() {
     var seek = (parseInt(this.props.currentTime) / parseInt(this.props.duration));
     return (
-      <Slider style={{height: '12px', backgroundColor: 'transparent', top: '-12px'}} name="audioSlider" onChange={this.props.onChange} step={0.0001} value={seek} />
+      <Slider style={{height: '18px', backgroundColor: 'transparent', top: '-12px'}} name="audioSlider" onChange={this.props.onChange} step={0.0001} value={seek} />
     );
   }
 
@@ -146,7 +146,7 @@ getInitialState: function() {
         <audio ref="audio" id="audio-player" autoPlay src={this.state.currentSong}></audio>
         <MusicSlider currentTime={this.state.currentTime} duration={this.state.duration} onChange={this.seek} defaultValue={1} />
         <div className="audio-controls">
-          <span className="song-current" style={{float: 'left', width: '50px', textAlign: 'center'}}>{_toMinutes(this.state.currentTime)}</span>
+          <span className="song-current" style={{float: 'left', width: '40px', fontSize: "12px", textAlign: 'center'}}>{_toMinutes(this.state.currentTime)}</span>
           <IconButton
             onClick = {this.props.changeRepeatMode}
             style={{
@@ -174,7 +174,7 @@ getInitialState: function() {
             { this.state.shuffle ? null : <FontIcon className="mdi mdi-shuffle" title="shuffle off" /> }
             { this.state.shuffle ? <FontIcon className="mdi mdi-shuffle" style={{color: '#00BCD4'}} title="shuffle on" /> : null }
           </IconButton>
-          <span className="song-duration" style={{float: 'right', width: '50px', textAlign: 'center'}}>{_toMinutes(this.state.duration)}</span>
+          <span className="song-duration" style={{float: 'right', width: '40px', fontSize: "12px", textAlign: 'center'}}>{_toMinutes(this.state.duration)}</span>
         </div>
       </div>
     );

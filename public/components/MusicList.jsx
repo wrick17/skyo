@@ -28,8 +28,9 @@ var MuiList = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.resetPlayer) {
       this.setState({currentSongId: undefined});
-      nextProps.resetPlayerComplete();
+      return extProps.resetPlayerComplete();
     }
+    this.setState({currentSongId: nextProps.currentSongId})
   },
 
   playSong: function(e) {
@@ -39,6 +40,8 @@ var MuiList = React.createClass({
 
   deleteSong: function(e) {
     var fileName = e.target.parentElement.parentElement.parentElement.lastChild.dataset.name;
+    var songId = e.target.parentElement.parentElement.parentElement.lastChild.dataset.id;
+    if (songId == this.state.currentSongId) return;
     this.props.handleDelete(fileName);
   },
 
@@ -50,7 +53,7 @@ var MuiList = React.createClass({
         <ListItem style={{padding: '12px', borderBottom: '1px solid #f0f0f0'}} disableTouchTap={true} key={song.id} >
           <span style={{
             textOverflow: 'ellipsis',
-            maxWidth: '85%',
+            maxWidth: '75%',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             display: 'block',
@@ -62,12 +65,12 @@ var MuiList = React.createClass({
             onClick={that.deleteSong}
             style={{
               padding: '0 !important',
-              marginRight: '10px',
               height: '24px',
               width: '24px',
               float: 'right',
               verticalAlign: 'sub'}}>
-              <FontIcon className="mdi mdi-delete" color="#aaa" hoverColor="#333" />
+              { (that.props.currentSongId == song.id) ? null : <FontIcon className="mdi mdi-delete" color="#999" hoverColor="#555" /> }
+              { (that.props.currentSongId == song.id) ? <FontIcon className="mdi mdi-delete" color="#ddd" /> : null }
           </IconButton>
           { (that.props.currentSongId == song.id) ? null : <IconButton
             onClick={that.playSong}
