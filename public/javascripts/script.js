@@ -61,17 +61,17 @@
 
 	  function getSongData(callback) {
 	    superagent.get('/api/musicList').end(function (err, data) {
-	      if (!err) callback(data.body);
+	      if (err) throw new Error(err);
+	      var playlist = {},
+	          i;
+	      for (i = 0; i < data.body.length; i++) {
+	        playlist[data.body[i].id] = data.body[i].name;
+	      }
+	      callback(data.body, playlist, i);
 	    });
 	  }
 
-	  getSongData(function (data) {
-
-	    var playlist = {},
-	        i;
-	    for (i = 0; i < data.length; i++) {
-	      playlist[data[i].id] = data[i].name;
-	    }
+	  getSongData(function (data, playlist, i) {
 
 	    var Syko = React.createClass({
 	      displayName: 'Syko',
@@ -80,11 +80,13 @@
 	        return {
 	          currentSong: null,
 	          currentSongId: null,
+	          data: data,
 	          playlist: playlist,
 	          shuffle: false,
 	          repeat: 'continuous',
 	          resetPlayer: false,
-	          songPosition: 0
+	          songPosition: 0,
+	          uploadProgress: 0
 	        };
 	      },
 
@@ -95,7 +97,7 @@
 	      },
 
 	      pollPosition: function pollPosition(currentTime) {
-	        this.setState({ songPosition: currentTime });
+	        this.currentTime = currentTime;
 	      },
 
 	      toggleShuffle: function toggleShuffle() {
@@ -109,7 +111,7 @@
 
 	        var nextSongId = shuffle(0, i);
 
-	        if (this.state.currentSongId === nextSongId) return this.shufflePlay();
+	        if (this.currentSongId === nextSongId) return this.shufflePlay();
 
 	        this.playSong(nextSongId);
 	      },
@@ -137,7 +139,7 @@
 	      },
 
 	      playPrevSong: function playPrevSong() {
-	        if (this.state.songPosition > 10 || this.state.repeat === 'single') return this.playSong(this.state.currentSongId);
+	        if (this.currentTime > 10 || this.state.repeat === 'single') return this.playSong(this.state.currentSongId);
 
 	        if (this.state.shuffle) return this.shufflePlay();
 
@@ -148,17 +150,44 @@
 	        this.playSong(i - 1);
 	      },
 
+	      handleUpload: function handleUpload(uploadEl) {
+	        var that = this;
+	        superagent.post('/api/audio').attach('file', uploadEl.files[0], uploadEl.files[0].name).field('size', uploadEl.files[0].size).on('progress', function (e) {
+	          that.setState({ uploadProgress: Math.floor(e.percent) });
+	        }).end(function (err, res) {
+	          if (err) throw new Error(err);
+	          that.setState({ uploadProgress: 'done' });
+	          getSongData(function (data, playlist) {
+	            that.setState({ data: data, playlist: playlist });
+	          });
+	        });
+	      },
+
+	      handleDelete: function handleDelete(songName) {
+	        var that = this;
+	        superagent.post('/api/delete').field('deleteId', songName).end(function (err, res) {
+	          if (err) throw new Error(err);
+	          getSongData(function (data, playlist) {
+	            that.setState({ data: data, playlist: playlist });
+	          });
+	        });
+	      },
+
 	      render: function render() {
 	        return React.createElement(
 	          'div',
 	          null,
-	          React.createElement(AppHeader, { title: 'Syko' }),
+	          React.createElement(AppHeader, { title: 'Syko',
+	            handleTouch: this.handleTouch,
+	            handleUpload: this.handleUpload,
+	            uploadProgress: this.state.uploadProgress }),
 	          React.createElement(AppBody, {
-	            data: data,
+	            data: this.state.data,
 	            playSong: this.playSong,
 	            currentSongId: this.state.currentSongId,
 	            resetPlayer: this.state.resetPlayer,
-	            resetPlayerComplete: this.resetPlayerComplete }),
+	            resetPlayerComplete: this.resetPlayerComplete,
+	            handleDelete: this.handleDelete }),
 	          React.createElement(AppFooter, {
 	            musicUrl: this.state.currentSong,
 	            playNextSong: this.playNextSong,
@@ -20651,7 +20680,7 @@
 	  getInitialState: function getInitialState() {
 	    return {
 	      isPlaying: false,
-	      currentTime: this.props.songPosition,
+	      currentTime: 0,
 	      duration: 0,
 	      currentSong: undefined,
 	      playDisabled: true,
@@ -20751,8 +20780,7 @@
 	              bottom: '8px',
 	              height: '36px',
 	              width: '36px',
-	              padding: '0',
-	              margin: '0 36px'
+	              padding: '0'
 	            } },
 	          this.state.repeat === 'continuous' ? React.createElement(FontIcon, { title: 'continuous', className: 'mdi mdi-repeat', style: { color: '#00BCD4' } }) : null,
 	          this.state.repeat === 'single' ? React.createElement(FontIcon, { title: 'repeat single', className: 'mdi mdi-repeat-once', style: { color: '#00BCD4' } }) : null,
@@ -20769,8 +20797,7 @@
 	              bottom: '8px',
 	              height: '36px',
 	              width: '36px',
-	              padding: '0',
-	              margin: '0 36px'
+	              padding: '0'
 	            },
 	            onClick: this.props.toggleShuffle },
 	          this.state.shuffle ? null : React.createElement(FontIcon, { className: 'mdi mdi-shuffle', title: 'shuffle off' }),
@@ -39878,7 +39905,9 @@
 	var React = __webpack_require__(2),
 	    mui = __webpack_require__(159),
 	    ThemeManager = new mui.Styles.ThemeManager(),
-	    AppBar = mui.AppBar;
+	    AppBar = mui.AppBar,
+	    Snackbar = mui.Snackbar,
+	    Paper = mui.Paper;
 
 	var AppHeader = React.createClass({
 	  displayName: 'AppHeader',
@@ -39893,11 +39922,61 @@
 	    };
 	  },
 
+	  getInitialState: function getInitialState() {
+	    return {
+	      isUploading: false
+	    };
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (nextProps.uploadProgress === 'done') {
+	      var that = this;
+	      setTimeout(function () {
+	        that.setState({ isUploading: false });
+	        that.refs.progress.dismiss();
+	      }, 1000);
+	    }
+	  },
+
+	  handleTouch: function handleTouch() {
+	    if (!this.state.isUploading) return React.findDOMNode(this.refs.upload).click();
+	    this.refs.progress.show();
+	  },
+
+	  handleUpload: function handleUpload() {
+	    if (React.findDOMNode(this.refs.upload).files.length > 0) {
+	      this.props.handleUpload(React.findDOMNode(this.refs.upload));
+	      this.setState({ isUploading: true });
+	      this.refs.progress.show();
+	    }
+	  },
+
+	  showSnack: function showSnack() {
+	    var credsSnack = this.refs.creds;
+	    credsSnack.show();
+	    setTimeout(function () {
+	      credsSnack.dismiss();
+	    }, 2000);
+	  },
+
 	  render: function render() {
+	    var progresMessage = this.props.uploadProgress + '% uploaded';
+	    if (this.props.uploadProgress === 'done') progresMessage = 'Done';
 	    return React.createElement(
 	      'header',
 	      null,
-	      React.createElement(AppBar, { title: this.props.title })
+	      React.createElement(AppBar, {
+	        title: this.props.title,
+	        iconClassNameRight: 'mdi mdi-cloud-upload',
+	        onRightIconButtonTouchTap: this.handleTouch,
+	        onLeftIconButtonTouchTap: this.showSnack }),
+	      React.createElement('input', { type: 'file', ref: 'upload', accept: '.mp3', onChange: this.handleUpload, style: { display: 'none' } }),
+	      React.createElement(Snackbar, {
+	        ref: 'progress',
+	        message: progresMessage }),
+	      React.createElement(Snackbar, {
+	        ref: 'creds',
+	        message: 'Thanks for using Syko' })
 	    );
 	  }
 
@@ -39926,7 +40005,8 @@
 	        playSong: this.props.playSong,
 	        currentSongId: this.props.currentSongId,
 	        resetPlayer: this.props.resetPlayer,
-	        resetPlayerComplete: this.props.resetPlayerComplete })
+	        resetPlayerComplete: this.props.resetPlayerComplete,
+	        handleDelete: this.props.handleDelete })
 	    );
 	  }
 	});
@@ -39944,6 +40024,7 @@
 	    ThemeManager = new mui.Styles.ThemeManager(),
 	    List = mui.List,
 	    ListItem = mui.ListItem,
+	    FontIcon = mui.FontIcon,
 	    IconButton = mui.IconButton,
 	    AppButtonRound = __webpack_require__(298);
 
@@ -39973,9 +40054,14 @@
 	    }
 	  },
 
-	  handleClick: function handleClick(e) {
-	    var fileName = e.target.parentElement.parentElement.parentElement.lastChild.dataset.value;
-	    this.props.playSong(fileName);
+	  playSong: function playSong(e) {
+	    var songId = e.target.parentElement.parentElement.parentElement.lastChild.dataset.id;
+	    this.props.playSong(songId);
+	  },
+
+	  deleteSong: function deleteSong(e) {
+	    var fileName = e.target.parentElement.parentElement.parentElement.lastChild.dataset.name;
+	    this.props.handleDelete(fileName);
 	  },
 
 	  render: function render() {
@@ -39987,29 +40073,55 @@
 	        { style: { padding: '12px', borderBottom: '1px solid #f0f0f0' }, disableTouchTap: true, key: song.id },
 	        React.createElement(
 	          'span',
-	          null,
+	          { style: {
+	              textOverflow: 'ellipsis',
+	              maxWidth: '85%',
+	              whiteSpace: 'nowrap',
+	              overflow: 'hidden',
+	              display: 'block',
+	              float: 'left'
+	            } },
 	          song.meta.title
 	        ),
-	        that.props.currentSongId == song.id ? null : React.createElement(IconButton, {
-	          onClick: that.handleClick,
-	          iconClassName: 'mdi mdi-play-circle-outline',
-	          style: {
-	            padding: '0 !important',
-	            marginRight: '12px',
-	            height: '24px',
-	            width: '24px',
-	            float: 'right',
-	            verticalAlign: 'sub' } }),
-	        that.props.currentSongId == song.id ? React.createElement(IconButton, {
-	          iconClassName: 'mdi mdi-volume-high',
-	          style: {
-	            padding: '0 !important',
-	            marginRight: '12px',
-	            height: '24px',
-	            width: '24px',
-	            float: 'right',
-	            verticalAlign: 'sub' } }) : null,
-	        React.createElement('input', { 'data-value': song.id, style: { display: 'none' } })
+	        React.createElement(
+	          IconButton,
+	          {
+	            onClick: that.deleteSong,
+	            style: {
+	              padding: '0 !important',
+	              marginRight: '10px',
+	              height: '24px',
+	              width: '24px',
+	              float: 'right',
+	              verticalAlign: 'sub' } },
+	          React.createElement(FontIcon, { className: 'mdi mdi-delete', color: '#aaa', hoverColor: '#333' })
+	        ),
+	        that.props.currentSongId == song.id ? null : React.createElement(
+	          IconButton,
+	          {
+	            onClick: that.playSong,
+	            style: {
+	              padding: '0 !important',
+	              marginRight: '10px',
+	              height: '24px',
+	              width: '24px',
+	              float: 'right',
+	              verticalAlign: 'sub' } },
+	          React.createElement(FontIcon, { className: 'mdi mdi-play-circle-outline', color: '#555' })
+	        ),
+	        that.props.currentSongId == song.id ? React.createElement(
+	          IconButton,
+	          {
+	            style: {
+	              padding: '0 !important',
+	              marginRight: '10px',
+	              height: '24px',
+	              width: '24px',
+	              float: 'right',
+	              verticalAlign: 'sub' } },
+	          React.createElement(FontIcon, { className: 'mdi mdi-volume-high', color: '#333' })
+	        ) : null,
+	        React.createElement('input', { 'data-id': song.id, 'data-name': song.name, style: { display: 'none' } })
 	      );
 	    });
 	    return React.createElement(
@@ -40025,7 +40137,13 @@
 	  displayName: 'MusicList',
 
 	  render: function render() {
-	    return React.createElement(MuiList, { data: this.props.data, playSong: this.props.playSong, currentSongId: this.props.currentSongId, resetPlayer: this.props.resetPlayer, resetPlayerComplete: this.props.resetPlayerComplete });
+	    return React.createElement(MuiList, {
+	      data: this.props.data,
+	      playSong: this.props.playSong,
+	      currentSongId: this.props.currentSongId,
+	      resetPlayer: this.props.resetPlayer,
+	      resetPlayerComplete: this.props.resetPlayerComplete,
+	      handleDelete: this.props.handleDelete });
 	  }
 	});
 

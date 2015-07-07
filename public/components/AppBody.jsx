@@ -10,7 +10,8 @@ var AppBody = React.createClass({
           playSong={this.props.playSong}
           currentSongId={this.props.currentSongId}
           resetPlayer={this.props.resetPlayer}
-          resetPlayerComplete={this.props.resetPlayerComplete} />
+          resetPlayerComplete={this.props.resetPlayerComplete}
+          handleDelete={this.props.handleDelete} />
       </div>
     );
   }

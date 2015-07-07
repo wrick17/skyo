@@ -15,17 +15,16 @@
     superagent
       .get('/api/musicList')
       .end(function(err, data) {
-        if(!err)
-        callback(data.body);
+        if(err) throw new Error(err);
+        var playlist = {}, i;
+        for (i = 0; i < data.body.length; i++) {
+          playlist[data.body[i].id] = data.body[i].name;
+        }
+        callback(data.body, playlist, i);
       });
   }
 
-  getSongData(function(data){
-
-    var playlist = {}, i;
-    for (i = 0; i < data.length; i++) {
-      playlist[data[i].id] = data[i].name;
-    }
+  getSongData(function(data, playlist, i){
 
     var Syko = React.createClass({
 
@@ -33,11 +32,13 @@
         return {
           currentSong: null,
           currentSongId: null,
+          data: data,
           playlist: playlist,
           shuffle: false,
           repeat: 'continuous',
           resetPlayer: false,
-          songPosition: 0
+          songPosition: 0,
+          uploadProgress: 0
         };
       },
 
@@ -48,7 +49,7 @@
       },
 
       pollPosition: function(currentTime) {
-        this.setState({songPosition: currentTime});
+        this.currentTime = currentTime;
       },
 
       toggleShuffle: function() {
@@ -62,7 +63,7 @@
 
         var nextSongId = shuffle(0, i);
 
-        if(this.state.currentSongId === nextSongId)
+        if(this.currentSongId === nextSongId)
           return this.shufflePlay();
 
         this.playSong(nextSongId);
@@ -97,7 +98,7 @@
       },
 
       playPrevSong: function() {
-        if(this.state.songPosition > 10 || this.state.repeat === 'single')
+        if(this.currentTime > 10 || this.state.repeat === 'single')
           return this.playSong(this.state.currentSongId);
 
         if (this.state.shuffle)
@@ -112,16 +113,51 @@
         this.playSong(i-1);
       },
 
+      handleUpload: function(uploadEl) {
+        var that = this;
+        superagent
+          .post('/api/audio')
+          .attach('file', uploadEl.files[0], uploadEl.files[0].name)
+          .field('size', uploadEl.files[0].size)
+          .on('progress', function(e) {
+            that.setState({uploadProgress: Math.floor(e.percent)});
+          })
+          .end(function(err, res){
+            if (err) throw new Error(err);
+            that.setState({uploadProgress: 'done'});
+            getSongData(function(data, playlist) {
+              that.setState({data: data, playlist: playlist});
+            });
+          });
+      },
+
+      handleDelete: function(songName) {
+        var that = this;
+        superagent
+          .post('/api/delete')
+          .field('deleteId', songName)
+          .end(function(err, res) {
+            if (err) throw new Error(err);
+            getSongData(function(data, playlist) {
+              that.setState({data: data, playlist: playlist});
+            });
+          });
+      },
+
       render: function() {
         return (
           <div>
-            <AppHeader title="Syko" />
+            <AppHeader title="Syko"
+              handleTouch={this.handleTouch}
+              handleUpload={this.handleUpload}
+              uploadProgress={this.state.uploadProgress} />
             <AppBody
-              data={data}
+              data={this.state.data}
               playSong={this.playSong}
               currentSongId={this.state.currentSongId}
               resetPlayer={this.state.resetPlayer}
-              resetPlayerComplete={this.resetPlayerComplete} />
+              resetPlayerComplete={this.resetPlayerComplete}
+              handleDelete={this.handleDelete} />
             <AppFooter
               musicUrl={this.state.currentSong}
               playNextSong={this.playNextSong}

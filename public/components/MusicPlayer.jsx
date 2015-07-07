@@ -59,7 +59,7 @@ getChildContext: function() {
 getInitialState: function() {
     return ({
       isPlaying: false,
-      currentTime: this.props.songPosition,
+      currentTime: 0,
       duration: 0,
       currentSong: undefined,
       playDisabled: true,
@@ -153,8 +153,7 @@ getInitialState: function() {
               bottom: '8px',
               height: '36px',
               width: '36px',
-              padding: '0',
-              margin: '0 36px'
+              padding: '0'
             }}>
             { (this.state.repeat === 'continuous') ? <FontIcon title="continuous" className="mdi mdi-repeat" style={{color: '#00BCD4'}} /> : null }
             { (this.state.repeat === 'single') ? <FontIcon title="repeat single" className="mdi mdi-repeat-once" style={{color: '#00BCD4'}} /> : null }
@@ -169,8 +168,7 @@ getInitialState: function() {
               bottom: '8px',
               height: '36px',
               width: '36px',
-              padding: '0',
-              margin: '0 36px',
+              padding: '0'
             }}
             onClick={this.props.toggleShuffle}>
             { this.state.shuffle ? null : <FontIcon className="mdi mdi-shuffle" title="shuffle off" /> }
