@@ -30,7 +30,7 @@ var MuiList = React.createClass({
       this.setState({currentSongId: undefined});
       return extProps.resetPlayerComplete();
     }
-    this.setState({currentSongId: nextProps.currentSongId})
+    this.setState({currentSongId: nextProps.currentSongId});
   },
 
   playSong: function(e) {
@@ -39,10 +39,10 @@ var MuiList = React.createClass({
   },
 
   deleteSong: function(e) {
-    var fileName = e.target.parentElement.parentElement.parentElement.lastChild.dataset.name;
+    var fileid = e.target.parentElement.parentElement.parentElement.lastChild.dataset.fileid;
     var songId = e.target.parentElement.parentElement.parentElement.lastChild.dataset.id;
     if (songId == this.state.currentSongId) return;
-    this.props.handleDelete(fileName);
+    this.props.handleDelete(fileid);
   },
 
   render: function() {
@@ -59,7 +59,7 @@ var MuiList = React.createClass({
             display: 'block',
             float: 'left'
             }}>
-            {song.meta.title}
+            {song.title}
           </span>
           <IconButton
             onClick={that.deleteSong}
@@ -93,7 +93,7 @@ var MuiList = React.createClass({
               verticalAlign: 'sub'}}>
               <FontIcon className="mdi mdi-volume-high" color="#333" />
           </IconButton> : null}
-          <input data-id={song.id} data-name={song.name} style={{display: 'none'}} />
+          <input data-id={song.id} data-fileid={song.fileId} style={{display: 'none'}} />
           </ListItem>
       );
     });

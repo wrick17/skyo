@@ -57,6 +57,8 @@ var AppHeader = React.createClass({
 
   render: function() {
     var progresMessage = this.props.uploadProgress + '% uploaded';
+    if (this.props.uploadProgress === 100)
+      progresMessage = 'Syncing with the cloud';
     if (this.props.uploadProgress === 'done')
       progresMessage = 'Done';
     return (

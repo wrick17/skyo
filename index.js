@@ -55,8 +55,8 @@ app.get('/', function(req, res) {
 
 app.get('/api/musicList', function(req, res) {
 
-  songlist('./public/music', function(data) {
-    res.send(data);
+  songlist('./public/music', function(songlist) {
+    res.send(songlist);
   });
 
 });

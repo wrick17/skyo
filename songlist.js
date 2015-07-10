@@ -15,7 +15,7 @@ module.exports = function(path_name, callback) {
     id3_reader.read(path_name + '/' + file, function(err, data) {
       if (path.extname(file) === '.mp3') {
         song_list.push({
-          name: file,
+          src: file,
           id: i++,
           meta: data
         });

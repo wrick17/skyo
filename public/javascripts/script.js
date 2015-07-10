@@ -46,9 +46,7 @@
 
 	'use strict';
 
-	(function () {
-
-	  'use strict';
+	window.init = function (token) {
 
 	  var React = __webpack_require__(2),
 	      superagent = __webpack_require__(299),
@@ -60,160 +58,180 @@
 	  injectTapEventPlugin();
 
 	  function getSongData(callback) {
-	    superagent.get('/api/musicList').end(function (err, data) {
+	    superagent.get('/api/musicList').query({ token: token }).end(function (err, res) {
+
 	      if (err) throw new Error(err);
+
+	      var sykoFolder = JSON.parse(res.text).folder;
+	      var songList = JSON.parse(res.text).songs;
+
 	      var playlist = {},
-	          i;
-	      for (i = 0; i < data.body.length; i++) {
-	        playlist[data.body[i].id] = data.body[i].name;
+	          songCount;
+	      for (songCount = 0; songCount < songList.length; songCount++) {
+	        playlist[songList[songCount].id] = songList[songCount].src;
 	      }
-	      callback(data.body, playlist, i);
+
+	      callback(songList, playlist, songCount, sykoFolder);
 	    });
 	  }
 
-	  getSongData(function (data, playlist, i) {
+	  var Syko = React.createClass({
+	    displayName: 'Syko',
 
-	    var Syko = React.createClass({
-	      displayName: 'Syko',
+	    getInitialState: function getInitialState() {
+	      return {
+	        currentSong: null,
+	        currentSongId: null,
+	        data: [],
+	        playlist: [],
+	        shuffle: false,
+	        folder: null,
+	        repeat: 'continuous',
+	        resetPlayer: false,
+	        songPosition: 0,
+	        uploadProgress: 0,
+	        repeatSong: false,
+	        songCount: 0
+	      };
+	    },
 
-	      getInitialState: function getInitialState() {
-	        return {
-	          currentSong: null,
-	          currentSongId: null,
+	    componentDidMount: function componentDidMount() {
+	      var that = this;
+	      getSongData(function (data, playlist, songCount, sykoFolder) {
+	        that.setState({
 	          data: data,
 	          playlist: playlist,
-	          shuffle: false,
-	          repeat: 'continuous',
-	          resetPlayer: false,
-	          songPosition: 0,
-	          uploadProgress: 0,
-	          repeatSong: false
-	        };
-	      },
-
-	      resetPlayerComplete: function resetPlayerComplete() {
-	        this.setState({
-	          resetPlayer: false
+	          songCount: songCount,
+	          sykoFolder: JSON.stringify(sykoFolder)
 	        });
-	      },
+	      });
+	    },
 
-	      pollPosition: function pollPosition(currentTime) {
-	        this.currentTime = currentTime;
-	      },
+	    resetPlayerComplete: function resetPlayerComplete() {
+	      this.setState({
+	        resetPlayer: false
+	      });
+	    },
 
-	      toggleShuffle: function toggleShuffle() {
-	        this.setState({ shuffle: !this.state.shuffle });
-	      },
+	    pollPosition: function pollPosition(currentTime) {
+	      this.currentTime = currentTime;
+	    },
 
-	      shufflePlay: function shufflePlay() {
-	        function shuffle(min, max) {
-	          return Math.floor(Math.random() * max + min);
-	        }
+	    toggleShuffle: function toggleShuffle() {
+	      this.setState({ shuffle: !this.state.shuffle });
+	    },
 
-	        var nextSongId = shuffle(0, i);
-
-	        if (this.currentSongId === nextSongId) return this.shufflePlay();
-
-	        this.playSong(nextSongId);
-	      },
-
-	      changeRepeatMode: function changeRepeatMode() {
-	        if (this.state.repeat === 'continuous') return this.setState({ repeat: 'single' });
-	        if (this.state.repeat === 'single') return this.setState({ repeat: 'none' });
-	        return this.setState({ repeat: 'continuous' });
-	      },
-
-	      playSong: function playSong(songId) {
-	        if (songId === this.state.currentSongId) {
-	          this.setState({ currentSong: '/music/' + this.state.playlist[songId], currentSongId: songId, repeatSong: true });
-	          this.setState({ repeatSong: false });
-	        }
-	        this.setState({ currentSong: '/music/' + this.state.playlist[songId], currentSongId: songId });
-	      },
-
-	      playNextSong: function playNextSong() {
-	        if (this.state.repeat === 'single') return this.playSong(this.state.currentSongId);
-
-	        if (this.state.shuffle) return this.shufflePlay();
-
-	        if (this.state.currentSongId < i - 1) return this.playSong(parseInt(this.state.currentSongId) + 1);
-
-	        if (this.state.repeat === 'none') return this.setState({ currentSongId: null, resetPlayer: true });
-
-	        this.playSong(0);
-	      },
-
-	      playPrevSong: function playPrevSong() {
-	        if (this.currentTime > 10 || this.state.repeat === 'single') return this.playSong(this.state.currentSongId);
-
-	        if (this.state.shuffle) return this.shufflePlay();
-
-	        if (this.state.currentSongId > 0) return this.playSong(parseInt(this.state.currentSongId) - 1);
-
-	        if (this.state.repeat === 'none') return this.playSong(0);
-
-	        this.playSong(i - 1);
-	      },
-
-	      handleUpload: function handleUpload(uploadEl) {
-	        var that = this;
-	        superagent.post('/api/audio').attach('file', uploadEl.files[0], uploadEl.files[0].name).field('size', uploadEl.files[0].size).on('progress', function (e) {
-	          that.setState({ uploadProgress: Math.floor(e.percent) });
-	        }).end(function (err, res) {
-	          if (err) throw new Error(err);
-	          that.setState({ uploadProgress: 'done' });
-	          getSongData(function (data, playlist) {
-	            that.setState({ data: data, playlist: playlist });
-	          });
-	        });
-	      },
-
-	      handleDelete: function handleDelete(songName) {
-	        var that = this;
-	        superagent.post('/api/delete').field('deleteId', songName).end(function (err, res) {
-	          if (err) throw new Error(err);
-	          getSongData(function (data, playlist) {
-	            that.setState({ data: data, playlist: playlist });
-	          });
-	        });
-	      },
-
-	      render: function render() {
-	        return React.createElement(
-	          'div',
-	          null,
-	          React.createElement(AppHeader, { title: 'Syko',
-	            handleTouch: this.handleTouch,
-	            handleUpload: this.handleUpload,
-	            uploadProgress: this.state.uploadProgress }),
-	          React.createElement(AppBody, {
-	            data: this.state.data,
-	            playSong: this.playSong,
-	            currentSongId: this.state.currentSongId,
-	            resetPlayer: this.state.resetPlayer,
-	            resetPlayerComplete: this.resetPlayerComplete,
-	            handleDelete: this.handleDelete }),
-	          React.createElement(AppFooter, {
-	            musicUrl: this.state.currentSong,
-	            playNextSong: this.playNextSong,
-	            playPrevSong: this.playPrevSong,
-	            repeatSong: this.state.repeatSong,
-	            pollPosition: this.pollPosition,
-	            songPosition: this.state.songPosition,
-	            repeat: this.state.repeat,
-	            changeRepeatMode: this.changeRepeatMode,
-	            shuffle: this.state.shuffle,
-	            toggleShuffle: this.toggleShuffle,
-	            resetPlayer: this.state.resetPlayer,
-	            resetPlayerComplete: this.resetPlayerComplete })
-	        );
+	    shufflePlay: function shufflePlay() {
+	      function shuffle(min, max) {
+	        return Math.floor(Math.random() * max + min);
 	      }
 
-	    });
+	      var nextSongId = shuffle(0, this.state.songCount);
 
-	    React.render(React.createElement(Syko, null), document.getElementById('content'));
+	      if (this.state.currentSongId == nextSongId) return this.shufflePlay();
+
+	      this.playSong(nextSongId);
+	    },
+
+	    changeRepeatMode: function changeRepeatMode() {
+	      if (this.state.repeat === 'continuous') return this.setState({ repeat: 'single' });
+
+	      if (this.state.repeat === 'single') return this.setState({ repeat: 'none' });
+
+	      return this.setState({ repeat: 'continuous' });
+	    },
+
+	    playSong: function playSong(songId) {
+	      if (songId == this.state.currentSongId) {
+	        this.setState({ currentSong: this.state.playlist[songId], repeatSong: true });
+	        this.setState({ repeatSong: false });
+	      }
+
+	      this.setState({ currentSong: this.state.playlist[songId], currentSongId: songId });
+	    },
+
+	    playNextSong: function playNextSong() {
+	      if (this.state.repeat === 'single') return this.playSong(this.state.currentSongId);
+
+	      if (this.state.shuffle) return this.shufflePlay();
+
+	      if (this.state.currentSongId < this.state.songCount - 1) return this.playSong(parseInt(this.state.currentSongId) + 1);
+
+	      if (this.state.repeat === 'none') return this.setState({ currentSongId: null, resetPlayer: true });
+
+	      this.playSong(0);
+	    },
+
+	    playPrevSong: function playPrevSong() {
+	      if (this.currentTime > 10 || this.state.repeat === 'single') return this.playSong(this.state.currentSongId);
+
+	      if (this.state.shuffle) return this.shufflePlay();
+
+	      if (this.state.currentSongId > 0) return this.playSong(parseInt(this.state.currentSongId) - 1);
+
+	      if (this.state.repeat === 'none') return this.playSong(0);
+
+	      this.playSong(this.state.songCount - 1);
+	    },
+
+	    handleUpload: function handleUpload(uploadEl) {
+	      var that = this;
+	      superagent.post('/api/audio').field('token', token).field('filename', uploadEl.files[0].name).field('folder', this.state.folder).attach('file', uploadEl.files[0], uploadEl.files[0].name).on('progress', function (e) {
+	        that.setState({ uploadProgress: Math.floor(e.percent) });
+	      }).end(function (err, res) {
+	        if (err) throw new Error(err);
+	        that.setState({ uploadProgress: 'done' });
+	        getSongData(function (data, playlist) {
+	          that.setState({ data: data, playlist: playlist });
+	        });
+	      });
+	    },
+
+	    handleDelete: function handleDelete(fileId) {
+	      var that = this;
+	      superagent.post('/api/delete').query({ token: token }).query({ deleteId: fileId }).end(function (err, res) {
+	        if (err) throw new Error(err);
+	        getSongData(function (data, playlist) {
+	          that.setState({ data: data, playlist: playlist });
+	        });
+	      });
+	    },
+
+	    render: function render() {
+	      return React.createElement(
+	        'div',
+	        null,
+	        React.createElement(AppHeader, { title: 'Syko',
+	          handleTouch: this.handleTouch,
+	          handleUpload: this.handleUpload,
+	          uploadProgress: this.state.uploadProgress }),
+	        React.createElement(AppBody, {
+	          data: this.state.data,
+	          playSong: this.playSong,
+	          currentSongId: this.state.currentSongId,
+	          resetPlayer: this.state.resetPlayer,
+	          resetPlayerComplete: this.resetPlayerComplete,
+	          handleDelete: this.handleDelete }),
+	        React.createElement(AppFooter, {
+	          musicUrl: this.state.currentSong,
+	          playNextSong: this.playNextSong,
+	          playPrevSong: this.playPrevSong,
+	          repeatSong: this.state.repeatSong,
+	          pollPosition: this.pollPosition,
+	          songPosition: this.state.songPosition,
+	          repeat: this.state.repeat,
+	          changeRepeatMode: this.changeRepeatMode,
+	          shuffle: this.state.shuffle,
+	          toggleShuffle: this.toggleShuffle,
+	          resetPlayer: this.state.resetPlayer,
+	          resetPlayerComplete: this.resetPlayerComplete })
+	      );
+	    }
+
 	  });
-	})();
+
+	  React.render(React.createElement(Syko, null), document.getElementById('content'));
+	};
 
 /***/ },
 /* 1 */
@@ -39968,6 +39986,7 @@
 
 	  render: function render() {
 	    var progresMessage = this.props.uploadProgress + '% uploaded';
+	    if (this.props.uploadProgress === 100) progresMessage = 'Syncing with the cloud';
 	    if (this.props.uploadProgress === 'done') progresMessage = 'Done';
 	    return React.createElement(
 	      'header',
@@ -40068,10 +40087,10 @@
 	  },
 
 	  deleteSong: function deleteSong(e) {
-	    var fileName = e.target.parentElement.parentElement.parentElement.lastChild.dataset.name;
+	    var fileid = e.target.parentElement.parentElement.parentElement.lastChild.dataset.fileid;
 	    var songId = e.target.parentElement.parentElement.parentElement.lastChild.dataset.id;
 	    if (songId == this.state.currentSongId) return;
-	    this.props.handleDelete(fileName);
+	    this.props.handleDelete(fileid);
 	  },
 
 	  render: function render() {
@@ -40091,7 +40110,7 @@
 	              display: 'block',
 	              float: 'left'
 	            } },
-	          song.meta.title
+	          song.title
 	        ),
 	        React.createElement(
 	          IconButton,
@@ -40131,7 +40150,7 @@
 	              verticalAlign: 'sub' } },
 	          React.createElement(FontIcon, { className: 'mdi mdi-volume-high', color: '#333' })
 	        ) : null,
-	        React.createElement('input', { 'data-id': song.id, 'data-name': song.name, style: { display: 'none' } })
+	        React.createElement('input', { 'data-id': song.id, 'data-fileid': song.fileId, style: { display: 'none' } })
 	      );
 	    });
 	    return React.createElement(
