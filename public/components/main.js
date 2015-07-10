@@ -17,6 +17,8 @@ window.init = function(token) {
 
         if (err) throw new Error(err);
 
+        console.log(JSON.parse(res.text));
+
         var sykoFolder = JSON.parse(res.text).folder;
         var songList = JSON.parse(res.text).songs;
 
