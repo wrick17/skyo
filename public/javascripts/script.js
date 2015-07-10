@@ -102,7 +102,7 @@
 	          data: data,
 	          playlist: playlist,
 	          songCount: songCount,
-	          sykoFolder: JSON.stringify(sykoFolder)
+	          folder: JSON.stringify(sykoFolder)
 	        });
 	      });
 	    },
