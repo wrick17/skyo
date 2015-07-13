@@ -1,4 +1,10 @@
-window.init = function(token) {
+window.init = function() {
+
+  var token = localStorage.getItem('token');
+
+  setInterval(function() {
+    token = localStorage.getItem('token');
+  } , 1000);
 
   var React = require('react'),
       superagent = require('superagent'),

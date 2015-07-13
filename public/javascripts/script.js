@@ -46,7 +46,13 @@
 
 	'use strict';
 
-	window.init = function (token) {
+	window.init = function () {
+
+	  var token = localStorage.getItem('token');
+
+	  setInterval(function () {
+	    token = localStorage.getItem('token');
+	  }, 1000);
 
 	  var React = __webpack_require__(2),
 	      superagent = __webpack_require__(299),
