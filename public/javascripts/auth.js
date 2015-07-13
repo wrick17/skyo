@@ -10,11 +10,6 @@ window.initial = true;
  */
 function handleClientLoad() {
   checkAuth();
-
-  setInterval(function() {
-    if (localStorage.getItem('expire') < ((Date.now()/1000)))
-      checkAuth();
-  } , 1000);
 }
 
 /**
@@ -38,13 +33,18 @@ function handleAuthResult(authResult) {
   if (!authResult.error) {
     localStorage.setItem('token', authResult.access_token);
     localStorage.setItem('expire', authResult.expires_at);
-    if (window.initial)
+    if (window.initial){
+      window.initial = false;
       window.init();
-    window.initial = false;
+      setInterval(function() {
+        if (localStorage.getItem('expire') < ((Date.now()/1000))) {
+          checkAuth();
+        }
+      } , 1000);
+    }
     // Access token has been successfully retrieved, requests can be sent to the API
   } else {
     // No access token could be retrieved, force the authorization flow.
-    console.log('here');
     gapi.auth.authorize({
         'client_id': CLIENT_ID,
         'scope': SCOPES,
