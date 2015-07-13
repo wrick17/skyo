@@ -36,7 +36,6 @@ function checkAuth() {
  */
 function handleAuthResult(authResult) {
   if (authResult) {
-    console.log(authResult);
     localStorage.setItem('token', authResult.access_token);
     localStorage.setItem('expire', authResult.expires_at);
     if (window.initial)
