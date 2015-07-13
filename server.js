@@ -97,10 +97,6 @@ app.post('/api/audio', function(req, res) {
 
   });
 
-
-  // console.log(req);
-  // drive.insertFile(token, )
-
 });
 
 app.post('/api/delete', function(req, res) {
@@ -108,10 +104,7 @@ app.post('/api/delete', function(req, res) {
   var token = req.query.token;
   var fileId = req.query.deleteId;
 
-  console.log(req.body);
-
   drive.trashFile(token, fileId, function(err, resp) {
-    console.log(resp);
     res.send(resp);
   });
 

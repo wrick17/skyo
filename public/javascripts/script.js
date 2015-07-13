@@ -40052,6 +40052,7 @@
 	    ListItem = mui.ListItem,
 	    FontIcon = mui.FontIcon,
 	    IconButton = mui.IconButton,
+	    Snackbar = mui.Snackbar,
 	    AppButtonRound = __webpack_require__(298);
 
 	var MuiList = React.createClass({
@@ -40061,15 +40062,15 @@
 	    muiTheme: React.PropTypes.object
 	  },
 
-	  getInitialState: function getInitialState() {
-	    return {
-	      currentSongId: this.props.currentSongId
-	    };
-	  },
-
 	  getChildContext: function getChildContext() {
 	    return {
 	      muiTheme: ThemeManager.getCurrentTheme()
+	    };
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      currentSongId: this.props.currentSongId
 	    };
 	  },
 
@@ -40166,13 +40167,17 @@
 	  displayName: 'MusicList',
 
 	  render: function render() {
-	    return React.createElement(MuiList, {
-	      data: this.props.data,
-	      playSong: this.props.playSong,
-	      currentSongId: this.props.currentSongId,
-	      resetPlayer: this.props.resetPlayer,
-	      resetPlayerComplete: this.props.resetPlayerComplete,
-	      handleDelete: this.props.handleDelete });
+	    return React.createElement(
+	      'div',
+	      null,
+	      React.createElement(MuiList, {
+	        data: this.props.data,
+	        playSong: this.props.playSong,
+	        currentSongId: this.props.currentSongId,
+	        resetPlayer: this.props.resetPlayer,
+	        resetPlayerComplete: this.props.resetPlayerComplete,
+	        handleDelete: this.props.handleDelete })
+	    );
 	  }
 	});
 

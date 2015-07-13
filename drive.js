@@ -30,8 +30,6 @@ drive.createSykoFolder = function(token, callback) {
 
 drive.insertFile = function(token, fileData, folder, callback) {
 
-  console.log(JSON.stringify(folder));
-
   const boundary = '-------314159265358979323846';
   const delimiter = "\r\n--" + boundary + "\r\n";
   const close_delim = "\r\n--" + boundary + "--";
@@ -71,7 +69,6 @@ drive.insertFile = function(token, fileData, folder, callback) {
 }
 
 drive.trashFile = function(token, fileId, callback) {
-  console.log(fileId);
   superagent
     .post('https://www.googleapis.com/drive/v2/files/'+fileId+'/trash')
     .set('Authorization', 'Bearer '+token)

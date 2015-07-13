@@ -5,6 +5,7 @@ var React = require('react'),
     ListItem = mui.ListItem,
     FontIcon = mui.FontIcon,
     IconButton = mui.IconButton,
+    Snackbar = mui.Snackbar,
     AppButtonRound = require('./AppButtonRound.jsx');
 
 var MuiList = React.createClass({
@@ -13,15 +14,15 @@ var MuiList = React.createClass({
     muiTheme: React.PropTypes.object
   },
 
-  getInitialState: function() {
-    return {
-      currentSongId: this.props.currentSongId
-    };
-  },
-
   getChildContext: function() {
     return {
       muiTheme: ThemeManager.getCurrentTheme()
+    };
+  },
+
+  getInitialState: function() {
+    return {
+      currentSongId: this.props.currentSongId
     };
   },
 
@@ -108,15 +109,18 @@ var MuiList = React.createClass({
 
 
 var MusicList = React.createClass({
+
   render: function() {
     return (
-      <MuiList
-        data={this.props.data}
-        playSong={this.props.playSong}
-        currentSongId={this.props.currentSongId}
-        resetPlayer={this.props.resetPlayer}
-        resetPlayerComplete={this.props.resetPlayerComplete}
-        handleDelete={this.props.handleDelete} />
+      <div>
+        <MuiList
+          data={this.props.data}
+          playSong={this.props.playSong}
+          currentSongId={this.props.currentSongId}
+          resetPlayer={this.props.resetPlayer}
+          resetPlayerComplete={this.props.resetPlayerComplete}
+          handleDelete={this.props.handleDelete} />
+      </div>
     );
   }
 });

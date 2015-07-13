@@ -1,5 +1,5 @@
-var CLIENT_ID = '560257946602-48ce4j6lpcudfgv6175gegqvobfg86gt.apps.googleusercontent.com';
-// var CLIENT_ID = '560257946602-7c38d7c8oroevmkamo10jtgssmcten6k.apps.googleusercontent.com';
+var CLIENT_ID = '560257946602-48ce4j6lpcudfgv6175gegqvobfg86gt.apps.googleusercontent.com'; // heroku key
+// var CLIENT_ID = '560257946602-7c38d7c8oroevmkamo10jtgssmcten6k.apps.googleusercontent.com'; // localhost:3000 key
 var SCOPES = [
   'https://www.googleapis.com/auth/drive'
 ];
