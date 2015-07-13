@@ -1,12 +1,11 @@
 var express = require('express'),
   path = require('path'),
   bodyParser = require('body-parser'),
+  superagent = require('superagent'),
+  multiparty = require('multiparty'),
   songlist = require('./songlist'),
   drive = require('./drive'),
-  superagent = require('superagent'),
   regExp = new RegExp('(.+)&export=download'),
-  multiparty = require('multiparty'),
-  util = require('util'),
   app = express();
 
 app.use(express.static(path.join('./public')));
