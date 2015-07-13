@@ -9,10 +9,7 @@ window.initial = true;
  * Called when the client library is loaded.
  */
 function handleClientLoad() {
-  if (!localStorage.getItem('token') || localStorage.getItem('expire') < (Date.now()/1000))
-    return checkAuth();
-  window.init();
-  window.initial = false;
+  checkAuth();
 
   setInterval(function() {
     if (localStorage.getItem('expire') < ((Date.now()/1000)))
